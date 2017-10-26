@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		body,
+		html{
+			height: 100%;
+			margin: 0;
+			padding:0;
+		}
+		.main{
+			width: 100%;
+			height: 100%;
+		}
+		.left{
+			width: 200px;
+			height: 100%;
+			background: #eee;
+		}
+		.right{
+			position: absolute;
+			left:200px;
+			top: 0;
+			height: 100%;
+			width: calc(100% - 200px);
+			background-color: skyblue;
+		}
+	</style>
+</head>
+<body>
+	<div class="main">
+		<div class="left"></div>
+		<div class="right"></div>
+	</div>
+</body>
+</html>
