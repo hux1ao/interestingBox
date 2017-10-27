@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script>
+    let obj = {
+      one: 1,
+      two: 2,
+      three: 3,
+      four: 4
+    }
+    obj[Symbol.iterator] = function () {
+      let length = Object.keys(obj).length
+      let current = 0
+      function next() {
+        if(current >= length) {
+          return {value: undefined, done: true}
+        } else {
+          let temp = obj[Object.keys(obj)[current]]
+          current++
+          return {value: temp, done: false}
+        }
+      }
+      return {next: next}
+    }
+    for(let i of obj) {
+      console.log(i)
+    }
+  </script>
+</head>
+<body>
+  
+</body>
+</html>
