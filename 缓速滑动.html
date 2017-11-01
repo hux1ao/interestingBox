@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    .content{
+      width: 100%;
+      background-color: #878D99;
+    }
+    p{
+      font-size: 300px;
+      width: 300px;
+      margin: 0 auto;
+    }
+    .back-top{
+      position: fixed;
+      right: 50px;
+      bottom: 30px;
+      background-color: #FA5555;
+      color: #eee;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .back-top:hover{
+      color:#FA5555;
+      background-color: #eee;
+      transition: 0.5s all;
+    }
+  </style>
+</head>
+<body>
+  <div class="back-top">返回顶部</div>
+  <div class="content">
+    <p>南无阿弥托福南无阿弥托福</p>
+  </div>
+</body>
+<script>
+  // document.documentElement.scrollTop
+  document.getElementsByClassName('back-top')[0].addEventListener('click', () => {
+    let flal = false
+    let timmer = setInterval(() => {
+      let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
+      if (scrollTop === 0) {
+        clearInterval(timmer)
+      }
+      let offset = scrollTop / 10
+      scrollTo(0, scrollTop - offset)
+    }, 15)
+  })
+</script>
+</html>
