@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<script>
+  function defineReactive (obj, key, val) {
+    Object.defineProperty(obj, key, {
+      enumerable: true,
+      get: () => {
+        return val
+      },
+      set: (newVal) => {
+        val = newVal
+      }
+    })
+  }
+  function observe (data) {
+    Object.keys(data).forEach(function (val) {
+      defineReactive(data, val, data[val])
+    })
+  }
+  function setProxy (obj) {
+    Object.keys(obj._data).forEach(function (val) {
+      Object.defineProperty(obj, val, {
+        get: () => {
+          console.log('代理生效')
+          return obj._data[val]
+        },
+        set: (newVal) => {
+          obj._data[val] = newVal
+        }
+      })
+    })
+  }
+  class Vue {
+    constructor (option) {
+      this._data = option.data
+      observe(this._data)
+      setProxy(this)
+    }
+  }
+  let vue = new Vue({
+    data: {
+      hux: 2
+    }
+  })
+  console.log(vue.hux)
+</script>
+<body>
+  
+</body>
+</html>
