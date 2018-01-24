@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    body{
+      background-color: #888888;
+    }
+    .star{
+      margin:200px auto;
+    }
+    .star img{
+      width: 40px;
+      height: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="star">
+    <img src="./img/star_bling.png">
+    <img src="./img/star_bling.png">
+    <img src="./img/star_bling.png">
+    <img src="./img/star_dark.png">
+    <img src="./img/star_dark.png">
+  </div>
+</body>
+<script>
+  const starContainer = document.querySelector('.star')
+  const starList = starContainer.querySelectorAll('img')
+  const starArray = Array.from(starList)
+  // console.log(starList)
+  starContainer.addEventListener('click', function (event) {
+    let index = starArray.indexOf(event.target)
+    if (index === -1) return
+    for (let i = 0; i <= index; i++) {
+      starList[i].src = './img/star_bling.png'
+    }
+    for (let j = 4; j > index ; j --) {
+      starList[j].src = './img/star_dark.png'
+    }
+  })
+</script>
+</html>
