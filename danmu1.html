@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    body,
+    html{
+      margin: 0px;
+      padding: 0px;
+      overflow-x: hidden;
+    }
+    .content{
+      width: 100vw;
+      height: 90vh;
+      margin: 0 auto;
+      background-color: #2D2F33;
+    }
+    .input{
+      text-align: center;
+      height: 10vh;
+      padding-top: -webkit-calc(100% -20px);
+      background-color: #5A5E66;
+    }
+    .input button{
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #FA5555;
+      border: 0;
+      height: 30%;
+      color:#fff;
+    }
+    .input input{
+      position:relative;
+      top: 50%;
+      transform: translatey(-50%);
+      height: 30%;
+      border: 0;
+      padding-left: 10px; 
+    }
+    .danmu{
+      font-size: 4vh;
+      color: #fff;
+      position: absolute;
+      right: 0;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <span class="danmu">胡枭是智障</span>
+    <span class="danmu">胡枭是智障</span>
+    <span class="danmu">胡枭是智障</span>
+    <span class="danmu">胡枭是智障</span>
+    <span class="danmu">胡枭是智障</span>
+  </div>
+  <div class="input">
+    <input type="text" placeholder="输入弹幕">
+    <button>发射</button>
+  </div>
+</body>
+<script>
+  // 设置container对象数组存储弹幕
+  class Container{
+    constructor () {
+      this.target = []
+      this.length = 0
+      this.index = 0
+    }
+    add (dm) {
+      this.target.push(dm)
+      this.length++
+      this.index++
+    }
+    shift () {
+      this.target.shift()
+      this.length--
+    }
+    // 遍历target， target调用cb
+    walk (cb) {
+      this.target.forEach(val => {
+        cb(val)
+      })
+    }
+  }
+  const container = new Container()
+  // 设置控制器，控制弹幕速度
+  const controler = {
+    speed: 3,
+    interval: 20
+  }
+  // 存放内容，以及页面宽度
+  const dep = {
+    content: document.querySelector('.content'),
+    contentWidth: getComputedStyle(document.querySelector('.content')).width,
+    getPageDanmu () {
+      let length = document.querySelectorAll('.danmu').length
+      // 后边更换高端方法
+      for (let i = 0; i < length; i++) {
+        let dm = new Danmu(i)
+        container.add(dm)
+      }
+    }
+  }
+  class Danmu{
+    constructor (index) {
+      this.offRight = 0
+      this.$el = document.querySelectorAll('.danmu')[index]
+      console.log(this.$el)
+      this.$el.style.top = ((index % 23) * 4) + 'vh' // 此处index应对22取余数 是否是22？
+      this.width = getComputedStyle(this.$el).width
+      this.offset = 0
+      this.isExist = TextTrackCue
+    }
+    move (offset, contentWidth) {
+      if (contentWidth - this.offset < 1) {
+        dep.content.removeChild(this.$el)
+        // 清除interval
+        clearInterval(intervalId)
+      }
+      this.$el.style.right = offset + this.offset + 'px'
+      this.offset += offset
+    }
+  }
+  // 获取页面本身弹幕
+  dep.getPageDanmu()
+  let intervalId = setInterval(function () {
+    container.target.forEach(val => {
+      val.move(controler.speed, parseInt(dep.contentWidth))
+    })
+    }, controler.interval)
+</script>
+</html>

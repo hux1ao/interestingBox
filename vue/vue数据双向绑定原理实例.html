@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <div>
+      <p class="title">我的英雄是</p>
+      <p v-text="heroName" class="content"></p>
+      <div class="input-wrapper">
+        <input type="text" placeholder="请输入你心目中的英雄">
+        <button>确定</button>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  class Vue {
+    constructor (option) {
+      this._data = option.data
+      this.$el = document.querySelector(option.el)
+      this.observerable(this._data)
+      Object.keys(option.data).forEach(val => {
+        this.setProxy(this, val)
+      })
+      this.watch(this, this._update.bind(this), this._render)
+    }
+    // 将属性变成可观测的
+    definedReactive (obj, key, val) {
+      const dep = new Dep()
+      Object.defineProperty(obj, key, {
+        enumerable: true,
+        configurable: true, // 设置成可设置的 不然会报Uncaught ReferenceError: data is not defined
+        get: () => {
+          if (Dep.target && dep.subs.indexOf(Dep.target) === -1) {
+            dep.add(Dep.target)
+          }
+          return val
+        },
+        set: (newVal) => {
+          val = newVal
+          dep.notify()
+        }
+      })
+    }
+    // 遍历每个对象，将属性编程可观察的
+    observerable (obj) {
+      Object.keys(obj).forEach(val => {
+        this.definedReactive(obj, val, obj[val])
+      })
+    }
+    // 设置代理,直接从vue实例操作属性，而不必用_data操作属性
+    setProxy (data, key) {
+      Object.defineProperty(data, key, {
+        enumerable: true,
+        get: () => {
+          return data._data[key]
+        },
+        set: (newVal) => {
+          data._data[key] = newVal
+        }
+      })
+    }
+    async watch (vm, update, cb) {
+      let watch = new Watcher(vm, this._update)
+      Dep.target = watch
+      // 异步操作 等待结束之后再进行操作
+      await cb.call(vm)
+      Dep.target = null
+    }
+    // 更新视图
+    _update () {
+      console.log('正在更新')
+      this._render()  
+    }
+    _bindText () {
+      this.queryText.call(this, this.$el)
+    }
+    // 渲染操作
+    _render () {
+      console.log('正在渲染')
+      this._bindText()
+    }
+    queryText (node) {
+      let textList = node.querySelectorAll('[v-text]')
+      let makedArr = Array.from(textList)
+      makedArr.forEach(val => {
+        let attribute = val.getAttribute('v-text')
+        val.innerHTML = this._data[attribute]
+      })
+    }
+  }
+  class Watcher {
+    constructor (vm, update) {
+      this.vm = vm
+      this.update = update.bind(this.vm)
+    }
+  }
+  class Dep {
+    constructor () {
+      this.subs = []
+    }
+    add (watcher) {
+      this.subs.push(watcher)
+    }
+    notify () {
+      this.subs.forEach(val => {
+        val.update()
+      })
+    }
+  }
+  let vue = new Vue({
+    data: {
+      heroName: 'huxiao'
+    },
+    el: '#app'
+  })
+  vue.heroName = '至尊宝'
+  window.onload = function () {
+    let button = document.querySelector('button')
+    button.addEventListener('click', () => {
+      let input = document.querySelector('input').value
+      vue.heroName = input
+    })
+  }
+</script>
+<style>
+  html,
+  body{
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+  }
+  .title{
+    font-size: 30px;
+    color: #EDF2FC;
+  }
+  body{
+    background-color: #2D2F33;
+  }
+  #app{
+    height: 100%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .input-wrapper{
+    width: 300px;
+    margin: 0 auto;
+  }
+  p{
+    margin: 0;
+    text-align: center;
+    color:#fff;
+    font-size: 100px;
+  }
+  .content {
+    margin-bottom: 100px;
+  }
+  input{
+    width: 200px;
+    background-color: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    height: 34px;
+    padding-left: 10px;
+  }
+  button{
+    width: 50px;
+    height: 34px;
+    border: 1px solid #fff;
+    background-color: #fff;
+  }
+</style>
+</html>

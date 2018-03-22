@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script>
+    class Vue{
+      constructor(option) {
+        this.data = option.data
+        observe(this.data)
+        _proxy(this)
+      }
+      render() {
+        console.log('render')
+      }
+    }
+    function defineReact(obj, key, val){
+      Object.defineProperty(obj, key, {
+        enumerable: true,
+        configerable: true, // 属性描述符可以被修改，且该属性可以被删除
+        set: (v) => {
+          console.log('已经设置' + key + '属性为' + v)
+          val = v
+        },
+        get: () => {
+          console.log('属性正在获取 ')
+          return val
+        }
+      })
+    }
+    function observe(obj) {
+      Object.keys(obj).forEach((val) => {
+        if (typeof obj[val] === 'object') {
+          observe(obj[val])
+        }
+        defineReact(obj, val, obj[val])
+      })
+    }
+    function _proxy (data) {
+      Object.keys(data.data).forEach(val => {
+        Object.defineProperty(data, val, {
+          enumerable: true,
+          get: () => {
+            return data.data[val]
+          },
+          set: (newVal) => {
+            data.data[val] = newVal
+          }
+        })
+      })
+    }
+    const vue = new Vue({
+      data:{
+        myLove: 'dorothy',
+        favor: {
+          tennis: 1
+        }
+      }
+    })
+    vue.myLove = 1
+    console.log(vue.myLove)
+  </script>
+</head>
+<body>
+</body>
+</html>

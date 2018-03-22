@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        html,
+        body{
+            width:100%;
+            height:100%;
+            overflow-x: hidden;
+        }
+        .content{
+            width: 80%;
+            height: 60%;
+            margin: 0 auto;
+            margin-top: 50px;
+            background-color: #2D2F33;
+        }
+        .content #barrage{
+            width: 100%;
+            height: 50%;
+        }
+        .input-wrapper{
+            margin: 0 auto;
+            width: 20%;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .input-wrapper input{
+            border-radius: 5px;
+            outline-color: transparent;
+            border: 1px solid #999999;
+            height: 30px;
+            padding-left: 10px;
+        }
+        .input-wrapper button{
+            background-color: #2D2F33;
+            outline:0px;
+            border: 1px solid #2D2F33;
+            height: 30px;
+            color:#D8DCE5;
+            padding: 0 10px;
+        }
+        .input-wrapper button:hover{
+            transition: 0.5s all;
+            background-color: #D8DCE5;
+            border: 1px solid #D8DCE5;
+            color:#2D2F33;
+        }
+        marquee{
+            font-size: 17px;
+            font-weight: bold;
+            color:#fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div id="barrage"></div>
+    </div>
+    <div class="input-wrapper">
+        <input type="text" id="text">
+        <button id="send1">发送</button>
+    </div>
+</body>
+<script>
+    function send1 () {
+        let text = document.getElementById('text').value
+        let marquee = document.createElement('marquee')
+        let mqText = document.createTextNode(text)
+        let barrage = document.getElementById('barrage')
+        marquee.appendChild(mqText)
+        marquee.loop = 1
+        barrage.appendChild(marquee)
+        document.getElementById('text').value = ''
+    }
+    window.onload = function () {
+        let send = document.getElementById('send1')
+        send.addEventListener('click', send1)
+    }
+</script>
+</html>
