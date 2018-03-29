@@ -1,7 +1,7 @@
 构建一个基于数据双向绑定原理的应用
 =====
-首先，这一切都是基于我们能够实时监听到数据变化，并根据变化做出实时响应
----
+####首先，这一切都是基于我们能够实时监听到数据变化，并根据变化做出实时响应
+
 构建一个```defineReactive```函数
 1. 函数参数解释
   * ```Obj``` => 传过来的实例
@@ -21,19 +21,17 @@ definedReactive (obj, key, val) {
         enumerable: true,
         configurable: true,
         get: () => {
-          if (Dep.target && dep.subs.indexOf(Dep.target) === -1) {
-            dep.add(Dep.target)
-          }
+          console.log('正在获取' + key)
           return val
         },
         set: (newVal) => {
           val = newVal
-          dep.notify()
+          console.log('正在设置' + key + '值为' +  newVal)
         }
       })
     }
 ```
-这段代码的作用是可以将传递过来的```obj[key]```设置为可观测的,下边，我们需要完成一个可以将实例中```_data```的所有属性变为可监测的函数
+该方法的作用是可以将传递过来的```obj[key]```设置为可观测的,我们需要将实例中```_data```的所有属性变为可监测的
 ```
 observerable (obj) {
   Object.keys(obj).forEach(val => {
@@ -62,14 +60,91 @@ setProxy (data, key) {
       return data._data[key]
     },
     set: (newVal) => {
+      val = newVal
       data._data[key] = newVal
     }
   })
 }
 ```
-该函数依然只完成了对```data[key]```中一个值的代理,我们需要为_data中所有值都达到该效果,所以我们还需要在构造函数中添加一行代码
+该函数依然只完成了对```data[key]```中一个值的代理,我们需要为_data中所有值都代理到实例上
 ```
 Object.keys(option.data).forEach(val => {
   this.setProxy(this, val)
 })
 ```
+到现在,我们已经可以通过实例获取_data中的值了。
+到现在,我们可以手动一下,
+```
+let vue = new Vue({
+    data: {
+      heroName: 'peter'
+    },
+    el: '#app'
+  })
+  console.log(vue.heroName)
+  vue.heroName = 'hero'
+```
+得到的结果是
+```
+正在获取heroName
+peter
+正在设置heroName值为hero
+正在获取heroName
+peter
+```
+目前我们的第一步已经完成了
+####但是，监听到数据变动之后,我们该继续做些什么呢
+我们希望我们对实例的```hero```属性的修改能直观地展示在页面上，实现view-model的同步
+那么在```HTML```中添加
+```
+  <div id="app">
+    <div>
+      <p class="title">我的英雄是</p>
+      <p v-text="heroName" class="content"></p>
+    </div>
+  </div>
+```
+在vue的构造函数中,我们要让实例关联到这个id为add的div
+```
+constructor (option) {
+  this._data = option.data
+  this.$el = document.querySelector(option.el)
+  this.observerable(this._data)
+  Object.keys(option.data).forEach(val => {
+    this.setProxy(this, val)
+  })
+}
+```
+到现在，实例的```$el```属性已经关联了```#app```div我们还需要一个渲染函数,将实例中的内容渲染到页面中。
+```
+_bindText () {
+  this.queryText(this.$el)
+}
+_render () {
+  this._bindText()
+}
+queryText (node) {
+  let textList = node.querySelectorAll('[v-text]')
+  let makedArr = Array.from(textList)
+  makedArr.forEach(val => {
+    let attribute = val.getAttribute('v-text')
+    val.innerHTML = this._data[attribute]
+  })
+}
+```
+现在我们可以手动修改实例属性,并调用渲染函数,就可以在页面观察到model-view的变化
+```
+let vue = new Vue({
+  data: {
+    heroName: 'peter'
+  },
+  el: '#app'
+})
+window.setTimeout(() => {
+  vue.heroName = 'tom'
+  vue._render()
+}, 2000)
+```
+但是,这又衍生出另外一个问题,平时使用的```mvvm```框架中,我们并没有手动调用```render```方法啊,我们如何做到监听到数据的变动,程序就自动渲染页面呢？
+
+可以想到，我们需要一个监听
