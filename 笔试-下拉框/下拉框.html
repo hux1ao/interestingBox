@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    *{
+      padding: 0px;
+      margin: 0px;
+    }
+    body{
+      background-color: #333;
+    }
+    .body{
+      font-size: 12px;
+      height: 400px;
+      width: 400px;
+      margin: 25vh auto;
+      box-shadow: 0 0 5px #eee;
+      background-color: #fff;
+    }
+    .hx-select-wrapper{
+      margin: 0 auto;
+      width: 240px;
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%)
+    }
+    ::-webkit-scrollbar-thumb{
+      background-color:#018EE8;
+      height:50px;
+      outline-offset:-2px;
+      outline:2px solid #fff;  
+      -webkit-border-radius:4px;
+      border: 2px solid #fff;
+    }
+    /*---滚动条大小--*/  
+    ::-webkit-scrollbar{
+      width:8px;
+      height:8px;
+    }
+    /*---滚动框背景样式--*/  
+    ::-webkit-scrollbar-track-piece{
+      background-color:#fff;
+      -webkit-border-radius:0;
+    }
+    .hx-select-wrapper .select{
+      height: 38px;
+      width: 228px;
+      border-radius: 3px;
+      outline:none;
+      border: 1px solid #aaa;
+      padding-left: 10px;
+      cursor: pointer;
+      position: relative;
+    }
+    .hx-select-wrapper .select .input{
+      border: 0px;
+      height: 38px;
+      outline: none;
+      cursor: pointer;
+      width: 80%;
+    }
+    .hx-select-wrapper .select .arrow{
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      top: 12px;
+      right: 10px;
+    }
+    .hx-select-wrapper .option{
+      margin-top: 10px;
+      width: 238px;
+      border: 1px solid #aaa;
+      color: rgb(96, 98, 102);
+      background-color: #fff;
+      border-radius: 3px;
+      box-shadow: 0px 0px 5px #aaa;
+      position: absolute;
+      display: none;
+    }
+    .hx-select-wrapper .option .empty,
+    .hx-select-wrapper .option .loading{
+      padding: 10px 15px;
+      display: none;
+    }
+    .hx-select-wrapper .option .not-empty{
+      padding: 10px 0px;
+      list-style-type: none;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .hx-select-wrapper .option .not-empty li {
+      padding: 5px 15px;
+    }
+    .hx-select-wrapper .option .not-empty li:hover{
+      background-color: #eee;
+      transition: all 0.6s;
+    }
+    .hx-select-wrapper .arrow1{
+      position: absolute;  
+      width: 0px;
+      height: 0px;
+      line-height: 0px;
+      left: 20px;
+      top: -6px;
+      border-color: transparent;
+      border-style: solid;
+      border-width: 6px;
+      border-top-width: 0px;
+      border-bottom-color: #ebeef5;
+    }
+    .rotate{
+      transform-origin:center center;
+      transform: rotate(180deg);
+      -webkit-transform: rotate(180deg);
+      -moz-transform: rotate(180deg);
+      -ms-transform: rotate(180deg);
+      -o-transform: rotate(180deg);
+      transition: transform 0.2s;
+      -moz-transition: -moz-transform 0.2s;
+      -moz-transition: -moz-transform 0.2s;
+      -o-transition: -o-transform 0.2s;
+      -ms-transition: -ms-transform 0.2s;
+      }
+    .rotate1{
+      transform-origin:center center;
+      transform: rotate(0deg);
+      -webkit-transform: rotate(0deg);
+      -moz-transform: rotate(deg);
+      -ms-transform: rotate(0deg);
+      -o-transform: rotate(0deg);
+      transition: transform 0.2s; 
+      -moz-transition: -moz-transform 0.2s; 
+      -moz-transition: -moz-transform 0.2s; 
+      -o-transition: -o-transform 0.2s; 
+      -ms-transition: -ms-transform 0.2s; 
+    }
+    #async-button{
+      color:skyblue;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="body">
+    <div class="hx-select-wrapper">
+        <div class="select">
+          <input type="text" class="input" placeholder="请选择或输入"></input>
+          <img class="arrow" src="../img/arrow.png">
+        </div>
+        <div class="option">
+          <ul class="not-empty">
+          </ul>
+          <div class="empty">暂无数据,<a id="async-button">加载网络资源</a></div>
+          <div class="loading">正在加载</div>
+        </div>
+    </div>
+  </div>
+</body>
+</html>
+<script>
+  window.onload = () => {
+    // 数据索引缓存
+    let cache = {}
+    // 是否在异步加载状态
+    let isLoading = false
+    // 是否显示option
+    let optionShow = false
+    const body = document.querySelector('body')
+    // 输入框
+    const input = document.querySelector('.input')
+    // 下拉框
+    const select = document.querySelector('.select')
+    // 下拉框箭头
+    const arrow = document.querySelector('.arrow')
+    // 选项
+    const option = document.querySelector('.option')
+    // 等待状态展示
+    const loading = document.querySelector('.loading')
+    // option为空展示
+    const empty = document.querySelector('.empty')
+    // 不为空时
+    const notEmpty = document.querySelector('.not-empty')
+    // 按钮
+    const asyncButton = document.querySelector('#async-button')
+    // 控制option显示
+    function optionDisplay (optionShow) {
+      let show = optionShow ? 'block' : 'none'
+      option.style.display = show
+      if (optionShow) {
+        handleValueChange()
+      }
+    }
+    // 控制箭头方向
+    function arrowDirection () {
+      if (arrow.classList.contains('rotate') || arrow.classList.contains('rotate1')) {
+        arrow.classList.toggle('rotate')
+        arrow.classList.toggle('rotate1')
+      } else {
+        arrow.classList.toggle('rotate')
+      }
+    }
+    // 处理.select点击事件
+    function selectClickHandler () {
+      optionShow = !optionShow
+      // option显隐
+      optionDisplay(optionShow)
+      // 控制箭头朝向
+      arrowDirection()
+    }
+    // 初始化option值
+    function initOption (options, pattern) {
+      if (options.length > 0) {
+        empty.style.display = 'none'
+        notEmpty.style.display = 'block'
+      } else {
+        empty.style.display = 'block'
+        notEmpty.style.display = 'none'
+      }
+      // 初始化
+      while(notEmpty.hasChildNodes()) {
+        notEmpty.removeChild(notEmpty.firstChild);
+      }
+      options.forEach(item => {
+        let li = document.createElement('li')
+        li.setAttribute('data-value', item.value)
+        li.setAttribute('data-label', item.label)
+        let textNode
+        if (pattern) {
+          textNode = document.createElement('span')
+          let redFont = document.createElement('span')
+          let text = document.createTextNode(pattern)
+          redFont.style.color = 'red'
+          redFont.appendChild(text)
+          let restChar = item.label.replace(pattern, '')
+          let blackFont = document.createTextNode(restChar)
+          textNode.appendChild(redFont)
+          textNode.appendChild(blackFont)
+        } else {
+          textNode = document.createTextNode(item.label)
+        }
+        li.appendChild(textNode)
+        notEmpty.appendChild(li)
+      })
+    }
+    // option选项
+    let options = [
+      {label: '西', value: 1},
+      {label: '西瓜', value: 2},
+      {label: '西瓜创', value: 3},
+      {label: '西瓜创客', value: 4},
+      {label: '西西', value: 1},
+      {label: '瓜瓜', value: 2},
+      {label: '创创', value: 3},
+      {label: '客客', value: 4}
+    ]
+    adjustData(options)
+    initOption(options)
+    function handleOptionClick ($event) {
+      let element = $event.target
+      if (element.nodeName === 'UL') return
+      if (element.nodeName !== 'LI') {
+        element = element.parentNode
+        if (element.nodeName !== 'LI') {
+          element = element.parentNode
+        }
+      }
+      let label = element.getAttribute('data-label')
+      selectClickHandler()
+      window.setTimeout(() => {
+        input.value = label
+      }, 100)
+    }
+    function handleValueChange () {
+      if (!optionShow) {
+        optionShow = !optionShow
+        optionDisplay(optionShow)
+        arrowDirection()
+      }
+      let value = input.value
+      let newOptions
+      if (value === '') {
+        initOption(options)
+        return
+      }
+      if (cache.hasOwnProperty(value.charAt(0))) {
+        let re = new RegExp('^' + value)
+        newOptions = cache[value.charAt(0)].filter(item => {
+          return re.test(item.label)
+        })
+      } else {
+        newOptions = []
+      }
+      // 过滤已匹配的
+      initOption(newOptions, value)
+    }
+    function handleBodyClick ($event) {
+      if ($event.target.classList.contains('hx-select-wrapper') && optionShow === true) {
+        optionShow = !optionShow
+        optionDisplay(optionShow)
+        arrowDirection()
+      }
+    }
+    // 显示加载标志
+    function showLoadingFlag (loadingFlag) {
+      if (loadingFlag) {
+        loading.style.display = 'block'
+      } else {
+        loading.style.display = 'none'
+      }
+    }
+    function asyncLoading () {
+      isLoading = true
+      showLoadingFlag(isLoading)
+      setTimeout(() => {
+        isLoading = false
+        showLoadingFlag(isLoading)
+        let value = input.value
+        generateRadom(value)
+      }, 1000)
+    }
+    // 生成随机option
+    function generateRadom (pattern) {
+      let num = Math.ceil((Math.random() * 10))
+      let RandomOptions = []
+      for (let i = 0; i< num; i++) {
+        let value = pattern + Math.random().toString()
+        RandomOptions.push({label: value, value})
+      }
+      initOption(RandomOptions, pattern)
+    }
+    // 处理数据维护 应对数据量较大时
+    function adjustData (options) {
+      cache = {}
+      options.forEach(item => {
+        let firstChar = item.label.charAt(0)
+        if (cache.hasOwnProperty(firstChar)) {
+          cache[firstChar].push({label: item.label, value: item.value})
+        } else {
+          cache[firstChar] = [{label: item.label, value: item.value}]
+        }
+      })
+    }
+    // 兼容ie
+    if (input.onpropertychange) {
+      input.addEventListener('propertychange', handleValueChange)
+    } else {
+      input.addEventListener('input', handleValueChange)
+    }
+    asyncButton.addEventListener('click', asyncLoading)
+    select.addEventListener('click', selectClickHandler)
+    notEmpty.addEventListener('click', handleOptionClick)
+    body.addEventListener('click', handleBodyClick)
+  }
+</script>
