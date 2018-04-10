@@ -1,0 +1,189 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+section{
+  display: none
+}
+/* 通过控制body的class实现section的隐藏,相比直接设置section的隐藏更简洁 */
+body.list section.list,
+body.add section.add,
+body.settings section.settings{
+  display: block
+}
+h1{
+  text-align: center;
+  padding: 10px 0;
+}
+.black{
+  background-color: #353535;
+  color: #fff;
+}
+.white{
+  background-color: #fff;
+  color: #353535;
+}
+/* 导航条 */
+nav ul{
+  margin-top: 1vh;
+  border-bottom: 1px solid #eee;
+  overflow: hidden;
+}
+nav ul li{
+  float: left;
+  width: 33.3vw;
+  list-style: none;
+  text-align: center;
+  padding-bottom: 1vh;
+  border-bottom: 2px solid #ddd;
+}
+nav ul li.active{
+  border-bottom: 2px solid #353535;
+}
+nav ul li a{
+  text-decoration: none;
+  color: #353535;
+}
+.search_form{
+  padding: 10px 10px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 5px solid #eee;
+}
+.search_form input:first-child{
+  width: 75%;
+  height: 30px;
+  border-radius: 5px;
+  border: 1px solid #eee;
+  outline: none;
+  padding-left: 10px;
+}
+.search_form input:last-child{
+  width: 20%;
+  border: 0;
+  background-color: #353535;
+  border-radius: 5px;
+  color: #fff;
+}
+#task_list{
+}
+#task_list li {
+  padding: 2vh 5vw;
+  border-bottom: 3px solid #eee;
+}
+#task_list li .item_complete,
+#task_list li .item_body{
+  display: inline-block;
+  vertical-align: middle;
+}
+#task_list li .item_body{
+  margin-left: 5vw;
+}
+
+#task_list li .item_body .item_title{
+  font-weight: bold;
+  font-size: 18px;
+}
+#task_list li .item_body .item_due{
+  font-size: 13px;
+  color: #888888;
+}
+#task_list li .item_delete{
+  float:right;
+  margin-top: 6px;
+}
+#task_list li .item_delete .item_delete{
+  display: block;
+}
+#task_list li .item_delete .delete_button{
+  text-decoration: none;
+  color: white;
+  background-color: #F56C6C;
+  border-radius: 5px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+/* 添加任务列表 */
+.add_form{
+  padding: 5vh 2vw;
+}
+.task_desc,
+.task_due_date{
+  margin-bottom: 1vh;
+}
+.task_desc_input{
+  width: 68vw;
+  height: 19vh;
+  border-radius: 5px;
+  outline: none;
+  padding: 1vw;
+  margin-bottom: 5px;
+  font-family: 'microsoft YAHEI'
+}
+.task_due_date_input{
+  width: 70vw;
+  border-radius: 5px;
+  border: 1px solid #888888;
+  height: 30px;
+  outline: none;
+  font-family: 'microsoft YAHEI'
+}
+.add_button{
+  width: 93vw;
+  height: 40px;
+  display: block;
+  margin: 5vh auto;
+  background-color: #353535;
+  border: 0px;
+  border-radius: 5px;
+  color:#fff;
+  outline: none;
+  font-weight: bold;
+}
+/* 设置页面 */
+.setting_form{
+  padding-top: 5vh;
+}
+.setting_form_div{
+  padding: 0 5vw;
+}
+.setting_form_div .name,
+.setting_form_div .scheme{
+  border-radius: 5px;
+  height: 30px;
+  border: 1px solid #888888;
+  font-family: 'microsoft YAHEI';
+  margin-top: 5px;
+}
+.setting_form_div .scheme{
+  margin-bottom: 5vh;
+  width:90vw;
+}
+.setting_form_div .name{
+  width: 89vw;
+  padding-left: 1vw;
+}
+.color_scheme{
+  margin-top: 3vh;
+}
+.setting_form_div input{
+  display: block;
+  width: 90vw;
+  height: 40px;
+  margin: 0 auto;
+  border-radius: 5px;
+  border: 0;
+  outline: none;
+}
+.save_setting,
+.reset{
+  color: #fff;
+  font-weight: bold;
+}
+.setting_form_div .save_setting{
+  background-color: #353535;
+  margin-bottom: 10px;
+}
+.setting_form_div .reset{
+  background-color: #F56C6C;
+}

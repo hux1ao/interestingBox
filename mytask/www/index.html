@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" manifest="tasks.appcache">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>MyTask</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="./image/favicon.ico" mce_href="./image/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="./image/favicon.ico" mce_href="./image/favicon.ico" type="image/x-icon">
+  <script src="app.js"></script>
+</head>
+<body class="list">
+  <header>
+    <h1><span id="user_name">My</span> &nbspTasks</h1>
+    <nav>
+      <ul>
+        <li class="active">
+          <a href="#list" class="list">任务列表</a>
+        </li>
+        <li>
+          <a href="#add" class="add">添加任务</a>
+        </li>
+        <li>
+          <a href="#settings" class="settings">设置</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <section class="list">
+    <form name="search" class="search_form">
+        <input type="text" name="query" placeholder="搜索任务">
+        <input type="submit" value="搜索">
+    </form>
+    <ul id="task_list"></ul>
+  </section>
+  <section class="add">
+    <form name="add" class="add_form">
+      <h3 class="task_desc">
+        任务描述
+      </h3>
+      <textarea name="desc" class="task_desc_input" placeholder="请输入任务描述"></textarea>
+      <h3 class="task_due_date">完成日期</h3>
+      <input type="date" name="due_date" class="task_due_date_input">
+      <input type="submit" value="添加一个新任务" class="add_button">
+    </form>
+  </section>
+  <section class="settings">
+    <form name="settings" class="setting_form">
+      <div class="setting_form_div">
+        <h3>姓名</h3>
+        <input type="text" name="name" class="name">
+        <h3 class="color_scheme">颜色</h3>
+        <select name="color_scheme" class="scheme">
+          <option value="white">白色</option>
+          <option value="black">黑色</option>
+        </select>
+        <input type="submit" value="保存设置" class="button save_setting">
+        <input type="reset" value="重置所有数据" class="button reset">
+      </div>
+    </form>
+  </section>
+</body>
+</html>
