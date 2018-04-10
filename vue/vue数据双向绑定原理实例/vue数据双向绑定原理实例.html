@@ -13,7 +13,6 @@
       <p v-text="heroName" class="content"></p>
       <div class="input-wrapper">
         <input type="text" placeholder="请输入你心目中的英雄">
-        <button>确定</button>
       </div>
     </div>
   </div>
@@ -120,11 +119,8 @@
   })
   vue.heroName = '至尊宝'
   window.onload = function () {
-    let button = document.querySelector('button')
-    button.addEventListener('click', () => {
-      let input = document.querySelector('input').value
-      vue.heroName = input
-    })
+    let input = document.querySelector('input')
+    input.addEventListener('input', () => {vue.heroName = input.value})
   }
 </script>
 <style>

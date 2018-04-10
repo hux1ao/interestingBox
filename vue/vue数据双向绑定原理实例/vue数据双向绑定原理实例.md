@@ -147,4 +147,67 @@ window.setTimeout(() => {
 ```
 但是,这又衍生出另外一个问题,平时使用的```mvvm```框架中,我们并没有手动调用```render```方法啊,我们如何做到监听到数据的变动,程序就自动渲染页面呢？
 
-可以想到，我们需要一个监听
+可以想到，我们需要一个监听```_data```值变化的方法,在监听到变化之后,触发我们的```_render```方法,重新渲染页面
+
+首先,我们定义实例方法```watch```,我们将实例,以及实例中的```update```暂存，将未修改过的状态存放在全局```Dep```中,当数据修改时,我们可以直接与```Dep```中的属性对比,如果有差异,我们将调用被保存的```update```方法来更新试图
+```
+async watch (vm, update, cb) {
+  // 构造一个watcher实例,保存当前vue实例状态
+  let watch = new Watcher(vm, this._update)
+  Dep.target = watch 
+  await cb.call(vm)
+  Dep.target = null
+  // 以上三步的作用是将当前watch实例存放到dep中
+}
+class Watcher {
+  constructor (vm, update) {
+    this.vm = vm
+    this.update = update.bind(this.vm)
+  }
+}
+class Dep {
+  constructor () {
+    this.subs = []
+  }
+  add (watcher) {
+    this.subs.push(watcher)
+  }
+  notify () {
+    this.subs.forEach(val => {
+      val.update()
+    })
+  }
+}
+```
+对应的，我们也需要将defineProperty方法做一些改变,
+我们修改了definedReactive方法中的get 和set属性，在第一次获取_data中的值的时候，我们会将watcher暂存在全局的dep实例中
+```
+definedReactive (obj, key, val) {
+  const dep = new Dep()
+  Object.defineProperty(obj, key, {
+    enumerable: true,
+    configurable: true, // 设置成可设置的 不然会报Uncaught ReferenceError: data is not defined
+    get: () => {
+      if (Dep.target && dep.subs.indexOf(Dep.target) === -1) {
+        dep.add(Dep.target)
+      }
+      return val
+    },
+    set: (newVal) => {
+      val = newVal
+      dep.notify()
+    }
+  })
+}
+```
+那么,到此，我们的vue实例就能完成在自动监听数据的变化从而更新视图了。
+
+我们还可以编写一个input框,从而更清楚地展示数据的变化带来的试图变化
+```
+window.onload = function () {
+  let input = document.querySelector('input')
+  input.addEventListener('input', () => {vue.heroName = input.value})
+}
+```
+
+到此,我们就做完了所有的工作。
