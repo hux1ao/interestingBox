@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        html{
+            background-color: #eee;
+        }
+        .wrapper{
+            background-color: #fff;
+            padding: 20px;
+        }
+        .title{
+            font-size: 25px;
+            font-weight: bold;
+        }
+        .input{
+            border: 1px solid #eee;
+            width: 200px;
+            padding: 5px 10px;
+        }
+        .mt{
+            margin-top: 20px;
+        }
+        .contentEditable{
+        }
+        .textarea {
+            width: 100%;
+            padding: 20px;
+            resize: none;
+            outline: none;
+            border: 1px solid #ccc;
+            background: #eee;
+            font-size: 15px;
+            box-sizing: border-box;
+            width: 200px;
+            position: absolute;
+            height: 100%;
+            overflow: hidden;
+        }
+        .textarea-wrapper{
+            position: relative;
+            height: 58px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <p class="title">contentEditable属性</p>
+        <p class="shorecoming">兼容性很差,可以去caniuse查一下</p>
+        <p>1.contenteditable=""</p>
+        <p class="contentEditable input" contentEditable=""></p>
+        <p>2.contenteditable="events"</p>
+        <p class="contentEditable input" contentEditable="events"></p>
+        <p>3.contenteditable="caret"</p>
+        <p class="contentEditable input" contentEditable="caret"></p>
+        <p>4.contenteditable="plaintext-only"</p>
+        <p class="contentEditable input" contentEditable="plaintext-only"></p>
+        <p class="desc">
+            实现可读写,并且标签高度随内容改变.且.仅支持纯文本
+        </p>
+        <p>5.contenteditable="true"</p>
+        <p class="contentEditable input" contentEditable="true"></p>
+        <p class="desc">
+            实现可读写,并且标签高度随内容改变.但是粘贴有样式的代码,样式会显示在内容中
+        </p>
+        <p>5.contenteditable="false"</p>
+        <p class="contentEditable input" contentEditable="false"></p>
+        <p class="desc">
+            我也不清楚events和caret是干嘛使的...,但是这个方法兼容性很差,可以自行去caniuse去查一下.
+        </p>
+    </div>
+    <div class="wrapper mt">
+        <p class="title">user-modify</p>
+        <p>user-modify: read-only;   只读</p>
+        <p class="input" style="-webkit-user-modify: read-only">只读</p>
+        <p>user-modify: read-write;  可读写, 但是粘贴有样式的代码,样式依旧会生效</p>
+        <p class="input" style="-webkit-user-modify: read-write">可读写</p>
+        <p>user-modify: read-write;  只写???这个属性好像没什么用</p>
+        <p class="input" style="-webkit-user-modify: write-only">只写</p>
+        <p>user-modify: read-write-plaintext-only;  可读写,只支持纯文本,随便粘贴有样式的html代码样式不会生效</p>
+        <p class="input" style="-webkit-user-modify: read-write-plaintext-only;">可读写</p>
+        <p>这个属性兼容性也很差</p>
+    </div>
+    <div class="wrapper mt">
+        <p class="title">textarea的scrollHeight</p>
+        <div class="textarea-wrapper">
+            <textarea class="textarea"></textarea>
+        </div>
+    </div>
+    <script>
+        const textarea = document.querySelector('.textarea');
+        const textareaWrapper = document.querySelector('.textarea-wrapper')
+        textarea.addEventListener('input', () => {
+            textareaWrapper.style.height = ''
+            textareaWrapper.style.height = textarea.scrollHeight + 'px'
+        })
+    </script>
+</body>
+</html>
