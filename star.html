@@ -31,7 +31,6 @@
   const starContainer = document.querySelector('.star')
   const starList = starContainer.querySelectorAll('img')
   const starArray = Array.from(starList)
-  // console.log(starList)
   starContainer.addEventListener('click', function (event) {
     let index = starArray.indexOf(event.target)
     if (index === -1) return

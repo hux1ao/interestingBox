@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .container{
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        .img1{
+            position: 1;
+        }
+        .img2{
+            position: 2
+        }
+        .img3{
+            position: 3
+        }
+        .img4{
+            position: 4
+        }
+        .card{
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='img1 card-wrapper'>
+            <div class='card' style="background-image: url(./img/1.jpeg)"></div>
+        </div>
+        <div class='img2 card-wrapper'>
+            <div class='card' style="background-image: url(./img/2.jpeg)"></div>
+        </div>
+        <div class='img3 card-wrapper'>
+            <div class='card' style="background-image: url(./img/3.jpeg)"></div>
+        </div>
+        <div class='img4 card-wrapper'>
+            <div class='card' style="background-image: url(./img/4.jpeg)"></div>
+        </div>
+    </div>
+</body>
+<script src='./index.js'></script>
+</html>
