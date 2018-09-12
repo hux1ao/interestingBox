@@ -1,7 +1,7 @@
 在学习前端过程中做的一些小项目
 ===
 * [实现了一个看似简单的下拉框,却要考虑在数据量特别大的时候前端性能该如何优化](https://github.com/hux1ao/-/tree/master/%E7%AC%94%E8%AF%95-%E4%B8%8B%E6%8B%89%E6%A1%86)
-* [基于vue数据双向绑定的原理构造了一个小mini的实例](https://github.com/hux1ao/-/tree/master/vue/vue%E6%95%B0%E6%8D%AE%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%AE%9E%E4%BE%8B)
+* [基于vue数据双向绑定的原理的一个有趣的例子](https://github.com/hux1ao/Front-end/tree/master/vue%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E6%95%B4%E7%90%86/vue%E6%95%B0%E6%8D%AE%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%AE%9E%E4%BE%8B)
 * [学习制作一个弹幕网站](https://github.com/hux1ao/-/blob/master/danmu.html)
 * [一个简单的评分网页](https://github.com/hux1ao/-/blob/master/star.html)
 * [vue的一个页面自适应布局](https://github.com/hux1ao/-/blob/master/%E6%95%B4%E9%A1%B5%E9%AB%98%E5%BA%A6%E8%87%AA%E9%80%82%E5%BA%94.vue)
