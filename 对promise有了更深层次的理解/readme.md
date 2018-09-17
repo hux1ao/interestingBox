@@ -27,6 +27,7 @@
 那么,status为什么从一个Number变成了一个Promise
 ---
 
+可能很多人都会有相同的疑问,通过查阅相关文档
 ```
 async函数的返回值是 Promise 对象，这比 Generator 函数的返回值是 Iterator 对象方便多了。你可以用then方法指定下一步的操作。
 ```
