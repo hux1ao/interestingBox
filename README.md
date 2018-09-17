@@ -10,3 +10,4 @@
 * [iterator遍历对象](https://github.com/hux1ao/Front-end/blob/master/iterator%E9%81%8D%E5%8E%86%E5%AF%B9%E8%B1%A1/%E9%81%8D%E5%8E%86%E5%AF%B9%E8%B1%A1.html)
 * [实现一个可以发送弹幕的网页](https://github.com/hux1ao/Front-end/blob/master/%E5%BC%B9%E5%B9%95/danmu.html)
 * [js清空cookie](https://github.com/hux1ao/Front-end/blob/master/js%E6%B8%85%E7%A9%BAcookie/index.js)
+* [制作一个简单的chrome拓展程序](https://github.com/hux1ao/Front-end/tree/master/chrome-extension)
