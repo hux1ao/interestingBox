@@ -1,14 +1,52 @@
 {
-    "name": "hux1ao",
-    "version": "1.0",
-    "description": "Build my first Extension!",
+    // 用整数表示manifest文件自身格式的版本号。目前为止只接受 2
     "manifest_version": 2,
+    // 插件的名称
+    "name": "My Extension",
+    // 插件的版本
+    "version": "1.0.1",
+    // 程序描述
+    "description": "my extension",
+    // 图标
     "icons": {
-        "128": "icon.png"
+        "16" : "icon.png"
     },
-    "browser_action": {  
-        "default_icon": "icon.png",
-        "default_title": "Hux1ao",
-        "default_popup": "popup.html"
-    }
-}
+    "browser_action" : {
+      // 鼠标移入，显示简短扩展文本描述
+      "default_title" : "title",
+      // 鼠标点击，弹出扩展模态窗口，展示内容
+      "default_popup" : "popup.html",
+      "default_icon" : {
+        "48" : "icon.png"
+      }
+    },
+    // 注入页面的脚本,在该脚本内可以访问web页面dom
+    "content_scripts" : [
+      {
+        // 通过一定的匹配规则,匹配成功之后,注入界面
+        "matches": ["<all_urls>"],
+        // 需要注入的脚本路径
+        "js" : ["content-script.js"]
+      }
+    ],
+    // 申请权限
+    "permissions":
+      [
+          "contextMenus", // 右键菜单
+          "tabs", // 标签
+          "notifications", // 通知
+          "webRequest", // web请求
+          "webRequestBlocking", // 阻塞式web请求
+          "storage", // 插件本地存储
+          "http://*/*", // 可以通过executeScript或者insertCSS访问的网站
+          "https://*/*", // 可以通过executeScript或者insertCSS访问的网站
+          "cookies"
+      ],
+      // 后台常驻脚本,扩展常常用一个单独的长时间运行的脚本来管理一些任务或者状态
+      "background":
+      {
+          "page": "background.html"
+      },
+      // 插件主页，这个很重要，不要浪费了这个免费广告位
+      "homepage_url": "http://www.baidu.com"
+  }

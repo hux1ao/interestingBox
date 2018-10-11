@@ -4,7 +4,12 @@
 需求
 ---
 
-需要模拟Web Scraper,制作一个类似的插件,插件用于抓取特定的html页面,并将页面内容发送至后端.
+需要模拟Web Scraper,制作一个类似的爬虫插件
+
+实现的功能点: 
+* 在插件中选择筛选条件
+* 根据筛选条件,请求接口从后端获取起始list页面url
+* 从起始页面开始爬虫,爬完符合条件的全部页面后爬虫停止
 
 背景
 ---
@@ -12,14 +17,17 @@
 因为没有chrome插件开发经验,对这个需求一头雾水.
 但是,当发现chrome扩展程序开发文档之后,也就硬着头皮开始做了T T
 [chrome扩展程序开发文档](https://crxdoc-zh.appspot.com/extensions/devguide)
+!请合理运用工具科学上网
+
+其实,相对于日常的前端开发,插件开发最大的问题是对插件的制作没有一个整体的认识,可能都不知道该在什么地方写什么代码.
+所以在开始之前,我们需要对插件的组成有一个整体的认识
+通过对mainfest.json文件各配置项功能的了解,有助于我们对插件的结构有一个清晰的认识.那么,我们开始8
 
 了解manifest.json
 ---
 
-通过对mainfest.json文件各配置项功能的了解,有助于我们对插件的结构有一个清晰的认识.那么,我们开始8
 ```
 {
-  // Required
   "app": {
     "background": {
       // Optional
@@ -33,29 +41,29 @@
   	// 插件的版本
   "version": "versionString",
 
-  // Recommended
+  // 默认语言
   "default_locale": "en",
   // 程序描述
-  "description": "A plain text description",
+  "description": "my extension",
   // 图标
   "icons": {
       "16" : "icon16.png"
   },
   "browser_action" : {
-    "default_title" : "title",
     // 鼠标移入，显示简短扩展文本描述
-    "default_popup" : "popup.html",
+    "default_title" : "title",
     // 鼠标点击，弹出扩展模态窗口，展示内容
+    "default_popup" : "popup.html",
     "default_icon" : {
       "48" : "./icons/time48.png"
     }
   },
-  // 注入页面的脚本,可以访问web页面dom,获取页面详细情况.
+  // 注入页面的脚本,在该脚本内可以访问web页面dom
   "content_scripts" : [
     {
-      // 注入匹配成功的页面
+      // 通过一定的匹配规则,匹配成功之后,注入界面
       "matches" : ["*://www.baidu.com/"],
-      // 需要注入的脚本
+      // 需要注入的脚本路径
       "js" : ["./content_scripts.js"],
     }
   ],
@@ -72,11 +80,9 @@
 		"https://*/*", // 可以通过executeScript或者insertCSS访问的网站
 		"cookies"
 	],
-    // 后台常驻脚本
-    // 扩展常常用一个单独的长时间运行的脚本来管理一些任务或者状态
+    // 后台常驻脚本,扩展常常用一个单独的长时间运行的脚本来管理一些任务或者状态
 	"background":
 	{
-		// 2种指定方式，如果指定JS，那么会自动生成一个背景页
 		"page": "background.html"
 	},
 	// 插件主页，这个很重要，不要浪费了这个免费广告位
@@ -90,21 +96,74 @@
 
 我们通过对manifest配置文件的了解,大概对chrome插件有了一个初步的认识
 
-* content-script会被注入到chrome打开的web页面,那么,我们通过一定的匹配原则,就可以获取到我们想爬取的页面html内容
-* background是常驻后台,我们可以用它来管理当前任务状态,告诉浏览器,下一条该爬取哪个界面,控制chrome关闭/开启页面,发送http请求等
+* content-script会被注入到我们定制的匹配规则匹配成功页面.并且,可以取到当前页面的dom
+* background是常驻后台,相当于一个处理中心,插件中的逻辑处理,都可以放到background中,它可以控制chrome开启,关闭页面,发送http请求等操作
 
 那么,我们就这样分工
 
+* content-script注入到规则匹配成功的页面
 * content-script负责抓取页面
 * content-script抓取成功之后,将抓取到的内容传递给background
 * background收取到信息之后,发送爬取到的内容,然后控制chrome打开下一条需要抓取的页面
 * 重复第一步,直到符合某条件就停止
+
+好的,整体架构搭建完成,让我们开始吧!
+---
+
+首先,我们新建一个名叫chrome-extension的文件夹
+在文件夹中,新建以下几个文件
+* background.html
+* popup.html
+* content-script.js
+* manifest.json
+再为你的插件挑选一个好看的icon.
+![](../img/扩展程序1.png '描述')
+
+我们首先来完成注入到页面的content-script吧
+---
+
+我们在manifest文件中设置
+```
+"content_scripts" : [
+  {
+    "matches": ["<all_urls>"],
+    "js" : ["./content_scripts.js"]
+  }
+]
+```
+其中,```"matches": ["<all_urls>"],```表示我们会将我们的content-script注入所有界面
+
+在content-script中
+```
+window.onload = () => {
+    const url = location.href;
+    const html = document.querySelector('html');
+    console.log(`我当前处在${url}`);
+    console.log(`当前界面内容有${html.innerHTML}`)
+}
+```
+我们通过点击 chrome"自定义及控制按钮" 选择 => 更多工具 => 扩展程序进入扩展程序界面
+
+在扩展程序界面中,选择导入chrome-extension文件夹,
+
+然后随便打开一个网页,在控制台可以看到以下内容
+
+![](../img/扩展程序2.png '描述')
+
+你可能会在想,我改如何调试我的content-script呢?
+
+在控制台中,打开source -> content-script -> My Extension
+即可看到我们的代码,当然,你也可以给你的代码打断点进行调试.
+![](../img/扩展程序3.png '描述')
+
+那么到这一步,我们已经可以实现页面的抓取了,不是吗?
 
 so,问题来了,content-script如何与background通信呢
 
 chrome提供了对应的api
 
 我们需要从content-script发送消息
+
 ```
 chrome.runtime.sendMessage({greeting: "您好"}, function(response) {
   console.log(response.farewell);
