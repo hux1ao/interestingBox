@@ -26,7 +26,7 @@
         // 通过一定的匹配规则,匹配成功之后,注入界面
         "matches": ["<all_urls>"],
         // 需要注入的脚本路径
-        "js" : ["content-script.js"]
+        "js" : ["js/content-script.js"]
       }
     ],
     // 申请权限

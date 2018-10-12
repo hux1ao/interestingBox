@@ -160,11 +160,49 @@ window.onload = () => {
 
 那么,我们抓取到了页面内容,然后该干嘛呢?
 
+根据我们之前的构思,抓到页面之后,然后发送到background中,
 
+* 我们如何与background通信
+* 我们还差一个background!!
+
+我们来制作一个background.js页面吧
+
+background.html
+```
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>后台页面</title>
+        <meta charset="utf-8"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    </head>
+    <body>
+        <!-- 插件中 contentscript发送message到后台页 -->
+        <!-- 后台页做处理,并将请求发送至服务器 -->
+        <div class="container">
+            <h1>这是后台页</h1>
+        </div>
+        <script type="text/javascript" src="./js/background.js"></script>
+    </body>
+</html>
+```
+background.js
+
+```
+console.log('这是常驻的后台页面')
+```
+
+刷新扩展程序,然后点击插件部分蓝色的background.html字体,会弹出background.html的控制台
+
+在console中可以看到"这是常驻的后台页面"这几个字样
+
+![](../img/扩展程序4.png '描述')
+
+好了,后台页有了,那么如何让后台页与content-script页面建立联系呢?
 
 chrome提供了对应的api
 
-我们需要从content-script发送消息
+根据官方示例,我们需要从content-script发送消息
 
 ```
 chrome.runtime.sendMessage({greeting: "您好"}, function(response) {
@@ -186,6 +224,154 @@ chrome.runtime.onMessage.addListener(
 ```
 [更多关于消息传递的介绍](https://crxdoc-zh.appspot.com/extensions/messaging)
 
+那么,我们的页面将改成这样
+content-script.js
+```
+window.onload = () => {
+    const url = location.href;
+    const html = document.querySelector('html').innerHTML;
+    console.log(`我当前处在${url}`);
+    console.log(`当前界面内容有${html}`);
+    // 发送消息至background
+    chrome.runtime.sendMessage({data: {url, html}}, function(response) {
+        console.log(response);
+    });
+}
+```
+background.js
+```
+console.log('这是常驻的后台页面')
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        console.log(request)
+        sendResponse('收到消息啦!')
+    }
+);
+```
+当我们打开每一个页面,都可以在background控制台中看到以下内容
+![](../img/扩展程序5.png '描述')
+
+那么,到目前,我们的爬虫基本逻辑已经实现了
+
+我们来盘点一下我们实现了什么,还差一些什么功能
+
+* 用户打开的每个界面,都会被我们抓取
+* content-script通过发送消息,将内容传递到background
+* background收到消息之后,告诉content-script"我已经收到了消息"
+
+那么,我们抓取到的数据,肯定要放到某一个地方,比如数据库?写入文本?所以我们还需要在background收到消息后将内容传递出去比如通过http请求将内容发送至后端(本文略)
+
+再者,我们还是没有实现如何自动抓取
+
+那么我们怎样来实现一个自动爬虫呢?
+
+根据需求,我们只需要给爬虫提供一个列表页的url,爬虫就可以自动爬取当前列表页的全部详情页的内容,以及列表页的下一页,下一页的下一页等等中的全部详情页的内容
+
+那么,我们怎么实现呢?
+
+我们拿百度举例,我们提供一个起始的列表页url ```https://www.baidu.com/s?ie=UTF-8&wd=%E6%8E%98%E9%87%91```
+
+页面内每一个详情模块类名为```result```或者```c-container ```,我们也可以拿到进入详情页的url
+![](../img/扩展程序6.png '描述')
+同样的,下一列表页的url也可以在页面中取到
+![](../img/扩展程序7.png '描述')
+
+那么,我们这样设计
+
+在content-script注入页面之后,抓取列表页中以下信息
+
+* 当前页面的url
+* 当列表页中所有详情页的url集合
+* 下一个列表页的url
+
+这中间全部都是一些繁琐的dom操作,没有难度在这里就不再赘述啦,我们上文提到的方式,将抓取到的内容发送至background
+
+收到这些内容之后,background需要做些什么?
+---
+
+* 存储下来所有的信息
+* 开始爬取第一条详情页
+* 第一页爬取完之后,继续爬取下一页,当前列表页内所有详情页爬取完成之后,开始爬取下一条列表页
+
+
+```
+update
+chrome.tabs.update(integer tabId, object updateProperties, function callback)
+```
+updateProperties提供url属性,则被操作tab会切换到指定url,
+为了每次都只操作同一个tab,我们在background中
+
+```
+// 当前爬虫需要爬取的tab 的id
+var scrapingTabId = '';
+// 爬虫需要爬取的url集合, 一个列表页中的item
+var urlToBeScrpied = [];
+// 爬取当前url在urllist中的位置
+var currentUrlIndex = 0;
+// 下一个列表页的url
+var nextPageUrl = '';
+// 监听来自content-script的消息
+chrome.runtime.onMessage.addListener(function(request) {
+    if (!request) {
+        return;
+    }
+    var type = request.type;
+    switch (type) {
+        case 'openNewWindow':
+            var data = request.data;
+            if (!data) {
+                return;
+            }
+            // 获取需要爬取的url
+            var thirdSearchUrl = data.thirdSearchUrl;
+            if (!thirdSearchUrl) {
+                return;
+            }
+            // 新建一个窗口,窗口打开当前url
+            // focused为true时,抽口会默认弹到顶层,确保tabs[0]能够获取到当前tab
+            chrome.windows.create({url: thirdSearchUrl, focused: true}, function () {
+                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                    // 获取执行爬虫操作的tabid,并存在全局作用域中
+                    scrapingTabId = tabs[0].id;
+                });
+                // 开始爬虫
+                chrome.storage.local.set({beginScraping: true}, function () {
+                    console.log('开始爬取');
+                });
+            });
+            break;
+        default:
+            return false;
+    }
+});
+
+function startScraping () {
+    // 如果获取不到当前爬虫程序的tab,则不做任何操作
+    if (!scrapingTabId) { return; }
+    // 开始爬取urllist中的第一条记录
+    currentUrlIndex = 0;
+    walkHrefList(urlToBeScrpied[0], 1500, scrapingTabId);
+}
+// 遍历详情页
+// href 详情页Id
+// inteval 遍历间隙
+// scrapingTabId 执行爬虫的tabid
+function walkHrefList (href, interval, scrapingTabId) {
+    window.setTimeout(function () {
+        // 判断当前tab是否存在
+        chrome.tabs.get(scrapingTabId, function (tab) {
+            // 如果当前tab不存在 则表示当前tab被关闭,告诉程序,停止爬取
+            if (!tab) {
+                return chrome.storage.local.set({beginScraping: false}, function () {
+                    console.log('停止抓取');
+                });
+            }
+            // 跳转到当前页面
+            chrome.tabs.update(scrapingTabId, {url: href});
+        });
+    }, interval);
+}
+```
 实现
 ---
 
