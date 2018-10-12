@@ -158,7 +158,9 @@ window.onload = () => {
 
 那么到这一步,我们已经可以实现页面的抓取了,不是吗?
 
-so,问题来了,content-script如何与background通信呢
+那么,我们抓取到了页面内容,然后该干嘛呢?
+
+
 
 chrome提供了对应的api
 
