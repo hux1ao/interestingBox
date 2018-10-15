@@ -7,19 +7,16 @@
 需要模拟Web Scraper,制作一个类似的爬虫插件
 
 实现的功能点: 
-* 在插件中选择筛选条件
-* 根据筛选条件,请求接口从后端获取起始list页面url
-* 从起始页面开始爬虫,爬完符合条件的全部页面后爬虫停止
+* 给定起始列表页,爬虫爬取列当前列表页中全部详情页内容
+* 当前列表页中所有详情页爬取完毕,则爬取下一列表页
+* 爬取完全部列表页之后,爬虫停止
 
-背景
+参考文档
 ---
 
-因为没有chrome插件开发经验,对这个需求一头雾水.
-但是,当发现chrome扩展程序开发文档之后,也就硬着头皮开始做了T T
-[chrome扩展程序开发文档](https://crxdoc-zh.appspot.com/extensions/devguide)
-!请合理运用工具科学上网
+[chrome扩展程序开发文档](https://crxdoc-zh.appspot.com/extensions/devguide)(请合理运用工具科学上网)
 
-其实,相对于日常的前端开发,插件开发最大的问题是对插件的制作没有一个整体的认识,可能都不知道该在什么地方写什么代码.
+其实,相对于日常的前端开发,插件开发最大的问题是对插件的制作方法没有一个整体的认识,不知道每一块组件负责什么功能,甚至都不知道该在什么地方完成什么功能.
 所以在开始之前,我们需要对插件的组成有一个整体的认识
 通过对mainfest.json文件各配置项功能的了解,有助于我们对插件的结构有一个清晰的认识.那么,我们开始8
 
@@ -89,7 +86,7 @@
 	"homepage_url": ""
 }
 ```
-当然插件中还有其他的配置项,可以参考[manifest配置项](https://developer.chrome.com/apps/manifest)
+更多插件的配置项,请参考[manifest配置项](https://developer.chrome.com/apps/manifest)
 
 思考
 ---
@@ -254,157 +251,42 @@ chrome.runtime.onMessage.addListener(
 那么,到目前,我们的爬虫基本逻辑已经实现了
 
 我们来盘点一下我们实现了什么,还差一些什么功能
+---
+
+目前我们爬虫的基本逻辑已经实现,能够抓取页面,能够实现各个部分间的通信
 
 * 用户打开的每个界面,都会被我们抓取
 * content-script通过发送消息,将内容传递到background
 * background收到消息之后,告诉content-script"我已经收到了消息"
 
-那么,我们抓取到的数据,肯定要放到某一个地方,比如数据库?写入文本?所以我们还需要在background收到消息后将内容传递出去比如通过http请求将内容发送至后端(本文略)
+那么,我们还缺一些什么功能呢?
 
-再者,我们还是没有实现如何自动抓取
+* 没有实现插件与服务器的通信,(通过普通的http请求)
+* 没有实现自动抓取
 
-那么我们怎样来实现一个自动爬虫呢?
+在这里我们提供实现自动抓取的思路,具体源码参考[github](https://github.com/hux1ao/Front-end/tree/master/chrome-extension)
 
-根据需求,我们只需要给爬虫提供一个列表页的url,爬虫就可以自动爬取当前列表页的全部详情页的内容,以及列表页的下一页,下一页的下一页等等中的全部详情页的内容
+q: 实现自动抓取,我们一定需要有一个开始按钮,那么这个按钮应该放在哪个页面中?
+a: 插件可以实现点击之后出现一个弹出层,我们可以将这个按钮放置在弹出层中.通过对manifest的配置,我们可以轻松的实现弹出层功能
+```
+"browser_action" : {
+    // 鼠标移入，显示简短扩展文本描述
+    "default_title" : "title",
+    // 鼠标点击，弹出扩展模态窗口，展示内容
+    "default_popup" : "popup.html",
+    "default_icon" : {
+    "48" : "icon.png"
+    }
+},
+```
+q: 浏览器自动抓取如何实现?
+a: 
+* 为了不影响用户操作,我们打算新建一个chrome窗口来进行爬虫操作,扩展程序对window的操作参考[chrome.windows](https://crxdoc-zh.appspot.com/extensions/windows)
+* 在我们注入的代码中,我们可以根据页面的url不同执行不同的代码,比如,当前是列表页的话,我们就执行抓取详情页url以及总页数,页码等数据,如果当前为详情页,则抓取当前页面全部内容.
+* 我们使用background页面作为中央处理器调控页面的抓取动作.我们在收到content-script从列表页传来的数据时,我们缓存其中的数据,通过对tab的操作,实现对页面的切换,从而完成抓取[chrome.tabs](https://crxdoc-zh.appspot.com/extensions/tabs)
 
-那么,我们怎么实现呢?
-
-我们拿百度举例,我们提供一个起始的列表页url ```https://www.baidu.com/s?ie=UTF-8&wd=%E6%8E%98%E9%87%91```
-
-页面内每一个详情模块类名为```result```或者```c-container ```,我们也可以拿到进入详情页的url
-![](../img/扩展程序6.png '描述')
-同样的,下一列表页的url也可以在页面中取到
-![](../img/扩展程序7.png '描述')
-
-那么,我们这样设计
-
-在content-script注入页面之后,抓取列表页中以下信息
-
-* 当前页面的url
-* 当列表页中所有详情页的url集合
-* 下一个列表页的url
-
-这中间全部都是一些繁琐的dom操作,没有难度在这里就不再赘述啦,我们上文提到的方式,将抓取到的内容发送至background
-
-收到这些内容之后,background需要做些什么?
+总结
 ---
 
-* 存储下来所有的信息
-* 开始爬取第一条详情页
-* 第一页爬取完之后,继续爬取下一页,当前列表页内所有详情页爬取完成之后,开始爬取下一条列表页
-
-
-```
-update
-chrome.tabs.update(integer tabId, object updateProperties, function callback)
-```
-updateProperties提供url属性,则被操作tab会切换到指定url,
-为了每次都只操作同一个tab,我们在background中
-
-```
-// 当前爬虫需要爬取的tab 的id
-var scrapingTabId = '';
-// 爬虫需要爬取的url集合, 一个列表页中的item
-var urlToBeScrpied = [];
-// 爬取当前url在urllist中的位置
-var currentUrlIndex = 0;
-// 下一个列表页的url
-var nextPageUrl = '';
-// 监听来自content-script的消息
-chrome.runtime.onMessage.addListener(function(request) {
-    if (!request) {
-        return;
-    }
-    var type = request.type;
-    switch (type) {
-        case 'openNewWindow':
-            var data = request.data;
-            if (!data) {
-                return;
-            }
-            // 获取需要爬取的url
-            var thirdSearchUrl = data.thirdSearchUrl;
-            if (!thirdSearchUrl) {
-                return;
-            }
-            // 新建一个窗口,窗口打开当前url
-            // focused为true时,抽口会默认弹到顶层,确保tabs[0]能够获取到当前tab
-            chrome.windows.create({url: thirdSearchUrl, focused: true}, function () {
-                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                    // 获取执行爬虫操作的tabid,并存在全局作用域中
-                    scrapingTabId = tabs[0].id;
-                });
-                // 开始爬虫
-                chrome.storage.local.set({beginScraping: true}, function () {
-                    console.log('开始爬取');
-                });
-            });
-            break;
-        default:
-            return false;
-    }
-});
-
-function startScraping () {
-    // 如果获取不到当前爬虫程序的tab,则不做任何操作
-    if (!scrapingTabId) { return; }
-    // 开始爬取urllist中的第一条记录
-    currentUrlIndex = 0;
-    walkHrefList(urlToBeScrpied[0], 1500, scrapingTabId);
-}
-// 遍历详情页
-// href 详情页Id
-// inteval 遍历间隙
-// scrapingTabId 执行爬虫的tabid
-function walkHrefList (href, interval, scrapingTabId) {
-    window.setTimeout(function () {
-        // 判断当前tab是否存在
-        chrome.tabs.get(scrapingTabId, function (tab) {
-            // 如果当前tab不存在 则表示当前tab被关闭,告诉程序,停止爬取
-            if (!tab) {
-                return chrome.storage.local.set({beginScraping: false}, function () {
-                    console.log('停止抓取');
-                });
-            }
-            // 跳转到当前页面
-            chrome.tabs.update(scrapingTabId, {url: href});
-        });
-    }, interval);
-}
-```
-实现
----
-
-其实到目前,每个页面的基本分工已经完成.每个页面都会有条不紊的做自己的事情.那么,回头看看,我们到目前基本实现了什么?
-
-* 插件通过匹配规则,会为匹配成功的页面注入一段js代码
-* 这段js代码会抓取界面内容,并将抓取到的内容传递到background
-* 后端收到这段内容之后,通过一些处理,再发送http请求传递到后端
-
-那么问题来了,这个爬虫只能在我们手动打开页面之后,才去抓取,我如何让它能够实现自动抓取的功能呢?
-我想要一个按钮,我点击之后,浏览器就开始自动抓取
-好8,我们再开始8
-
-为了方便操作,我们制作一个弹出层,当我们点击chrome右上方的插件标志,弹出层出现,点击弹出层中按钮,开始爬虫.
-
-那么弹出层应该有什么?
-
-* 首先,弹出层需要一个按钮,并有对应的监听事件,当用户点击按钮时,触发事件
-* 触发事件时,将需要爬取的列表页url传递到background
-
-弹出层与background的通信,参考content-script与background的方法
-
-那么有了这样一个按钮之后,我们的业务逻辑变成什么样了?
-
-* 用户点击按钮
-* popup层将列表页url传递给background
-* background页面控制chrome开启列表页
-* content-script注入列表页,爬取有效数据:所有详情页的url集合,下一个列表页url,当前是不是最后一个列表页
-* content-script将内容传递到background
-* background获取数据之后,控制浏览器开始爬取详情页
-* content-script开始注入详情页
-* 获取详情页有效内容: 爬虫需要的信息
-* content-script将信息发送至background,并告诉background本页已经爬取完成.
-* background收到当前详情页爬取完成之后,控制chrome更换当前tab的url,开始爬取下一条
-
-这样,一个能够自动爬取数据的爬虫就完成了
+其实,本拓展程序,也就是通过一些简单的dom操作以及对chrome提供的api合理利用完成的.
+当然,不得不说,google真的很强大.
