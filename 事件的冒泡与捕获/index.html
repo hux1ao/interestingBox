@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #a{
+            width: 300px;
+            height: 300px;
+            background: pink;
+        }
+        #b{
+            width: 200px;
+            height: 200px;
+            background: blue;
+        }
+        #c{
+            width: 100px;
+            height: 100px;
+            background: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div id="a">
+        a
+        <div id="b">
+            b
+            <div id="c">c</div>
+        </div>
+    </div>
+</body>
+<script>
+    var a = document.getElementById("a"),
+        b = document.getElementById("b"),
+        c = document.getElementById("c");
+    c.addEventListener("click", function (event) {
+        console.log("c1");
+        // 注意第三个参数没有传进 false , 因为默认传进来的是 false
+        //，代表冒泡阶段调用，个人认为处于目标阶段也会调用的
+    });
+    c.addEventListener("click", function (event) {
+        console.log("c2");
+    }, true);
+    b.addEventListener("click", function (event) {
+        console.log("b");
+    }, true);
+    a.addEventListener("click", function (event) {
+        console.log("a1");
+    }, true);
+    a.addEventListener("click", function (event) {
+        console.log("a2")
+    });
+    a.addEventListener("click", function (event) {
+        console.log("a3");
+    }, true);
+    a.addEventListener("click", function (event) {
+        console.log("a4");
+    }, true);
+</script>
+</html>
