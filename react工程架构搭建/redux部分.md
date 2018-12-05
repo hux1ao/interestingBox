@@ -2,17 +2,32 @@
 ===
 
 使用方法：
+---
 
 * 获取数据：react-redux中connect函数，将store中数据挂载到props上。
 * 更新数据：将我们申明的update方法挂载到props上，使用时直接this.update('example', ['path', 'path'], {});
 
 以下做法的好处：
+---
 
 * 使用update函数，可以无副作用地更新store中指定数据
 * 将store挂载到window上，可以在控制台直接查看store内部数据，方便调试。
 * reducer拆分，可读性强
 
+
+目录结构
+---
+
 在根目录下新建store文件夹，存放与redux相关的内容
+
+文件夹store
+* index.js
+* init.js
+* reducerCreater.js
+* combineReducer.js
+
+各部分源码示例
+---
 
 index.js
 ```
