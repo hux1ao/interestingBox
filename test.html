@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <!-- <iframe src="http://localhost:4000/#/resumeDetail" frameborder="0"></iframe>
+    button -->
+    <button class="click">点我点我</button>
+
+<a href="http://www.xx.com/virtualPath/facility/document/2018/07/09/44a9a76a-084a-415a-9d50-e26ea28b55ce/0b48ed694ef510393ad2e829d6ec2fad.jpg" download="" class="">123123123</a>
+    <a href="http://www.w3school.com.cn/i/w3school_logo_white.gif" download="w3logo.gif">11111</a>
+</body>
+<script>
+    var button = document.querySelector('.click');
+    button.addEventListener('click', function () {
+        var a = document.createElement('a');
+        a.href = 'http://www.w3school.com.cn/i/w3school_logo_white.gif';
+        a.download = true
+        console.log(a)
+        a.click()
+    })
+</script>
+</html>
