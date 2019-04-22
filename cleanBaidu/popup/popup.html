@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body,html, p{
+            padding: 0;
+            margin: 0;
+        }
+        .title{
+            font-size: 24px;
+            font-weight: bolder;
+            margin-bottom: 16px
+        }
+        .popup-body{
+            width: 200px;
+            background-color: #eee;
+            padding: 16px
+        }
+        .button-wrapper{
+            display: flex;
+        }
+        .button{
+            width: 40px;
+            color: #fff;
+            text-align: center;
+        }
+        #button-wrapper-true{
+            margin-right: 20px;
+            background-color: #409EFF;
+        }
+        #button-wrapper-false{
+            background-color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="popup-body">
+        <p class="title">是否净化百度</p>
+        <div class="button-wrapper">
+            <div id="button-wrapper-true" class="button">是</div>
+            <div id="button-wrapper-false" class="button">否</div>
+        </div>
+    </div>
+</body>
+<script src="popup.js"></script>
+</html>
