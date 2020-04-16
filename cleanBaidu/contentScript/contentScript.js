@@ -1,5 +1,6 @@
 const recommend = document.querySelector('#s_wrap');
 const s_form_wrapper = document.querySelector('#s_form_wrapper');
+console.log(document.cookie)
 chrome.runtime.onMessage.addListener(function(request) {
     const type = request.type;
     switch (type) {

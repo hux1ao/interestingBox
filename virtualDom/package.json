@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "webpack-dev-server --open"
   },
-  "author": "xiao.hu@11bee.com",
+  "author": "xiao.hu",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.18.0",

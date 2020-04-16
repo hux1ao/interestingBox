@@ -11,7 +11,7 @@
 <body>
     <div id="root"></div>
 </body>
-<script type="text/javascript" src="https://cdn.11bee.com/scripts/main.44b8be3e.js" defer="defer"></script>
+<script type="text/javascript" src="https" defer="defer"></script>
 <script type="text/javascript" defer="defer">
     window.DATA = {};
     window.DATA.hasLoginInitial = true;
@@ -47,7 +47,7 @@ but!!!
     window.DATA = {};
     window.DATA.hasLoginInitial = true;
 </script>
-<script type="text/javascript" src="https://cdn.11bee.com/scripts/main.44b8be3e.js" defer="defer"></script>
+<script type="text/javascript" src="" defer="defer"></script>
 ```
 但是,问题又来了
 
@@ -60,7 +60,7 @@ but!!!
     window.DATA = {};
     window.DATA.hasLoginInitial = true;
 </script>
-<script type="text/javascript" src="https://cdn.11bee.com/scripts/main.44b8be3e.js" defer="defer"></script>
+<script type="text/javascript" src="" defer="defer"></script>
 ```
 
 为什么script标签跑到body外边了????
